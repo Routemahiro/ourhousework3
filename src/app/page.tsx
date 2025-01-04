@@ -6,7 +6,16 @@ import Image from "next/image"
 import { useState, useEffect } from "react"
 import Link from "next/link"
 
-const initialTasks = [
+interface Task {
+  id: number
+  title: string
+  date: string
+  status: "done" | "incomplete"
+  selected: boolean
+  subtitle?: string
+}
+
+const initialTasks: Task[] = [
   { id: 1, title: "朝の掃除", date: "08:00", status: "done", selected: false },
   { id: 2, title: "洗濯", subtitle: "タオルと衣類を分けて洗う", date: "09:30", status: "done", selected: false },
   { id: 3, title: "食器洗い", subtitle: "朝食の後片付け", date: "10:00", status: "incomplete", selected: false },
@@ -24,12 +33,65 @@ const initialTasks = [
   { id: 15, title: "最終確認", subtitle: "戸締り、電気、ガスの確認", date: "23:00", status: "incomplete", selected: false }
 ]
 
+interface DetailContentProps {
+  task: Task
+}
+
+function DetailContent({ task }: DetailContentProps) {
+  return (
+    <>
+      <div className="mb-6">
+        <p className="text-sm text-muted-foreground mb-1">Detail</p>
+        <h2 className="text-3xl font-serif">{task.title}</h2>
+      </div>
+
+      <div className="aspect-video bg-muted rounded-lg mb-6 flex items-center justify-center">
+        <Image
+          src="/placeholder.svg"
+          alt="Main detail image"
+          width={800}
+          height={450}
+          className="w-full h-full object-cover rounded-lg"
+        />
+      </div>
+
+      <div className="grid grid-cols-3 gap-4 mb-8">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="aspect-square bg-muted rounded-lg flex items-center justify-center">
+            <Image
+              src="/placeholder.svg"
+              alt={`Thumbnail ${i}`}
+              width={200}
+              height={200}
+              className="w-full h-full object-cover rounded-lg"
+            />
+          </div>
+        ))}
+      </div>
+
+      <div>
+        <h3 className="font-serif text-xl mb-4">specifications</h3>
+        <p className="text-muted-foreground mb-2">{task.subtitle || "No specifications available"}</p>
+        <div className="mt-8">
+          <h4 className="font-serif text-lg mb-2">Additional Information</h4>
+          {Array.from({ length: 5 }).map((_, i) => (
+            <p key={i} className="text-muted-foreground mb-4">
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+            </p>
+          ))}
+        </div>
+      </div>
+    </>
+  )
+}
+
 export default function Home() {
   const [tasks, setTasks] = useState(initialTasks)
   const [selectedTask, setSelectedTask] = useState(tasks.find(task => task.selected) || tasks[0])
   const [currentTime, setCurrentTime] = useState(new Date())
   const [currentDate, setCurrentDate] = useState(new Date())
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [isDetailOpen, setIsDetailOpen] = useState(false)
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -61,11 +123,12 @@ export default function Home() {
     ))
   }
 
-  const selectTask = (task: typeof tasks[0]) => {
+  const selectTask = (task: Task) => {
     setTasks(tasks.map(t => 
       ({ ...t, selected: t.id === task.id })
     ))
     setSelectedTask(task)
+    setIsDetailOpen(true)
   }
 
   return (
@@ -201,54 +264,37 @@ export default function Home() {
         {/* 区切り線 */}
         <div className="hidden md:block w-[2px] bg-[#E0E0E0] dark:bg-[#333333] self-stretch my-6" />
 
-        {/* 家事詳細 */}
-        <ScrollArea className="h-[calc(100vh-100px)]">
-          <div className="py-6 pl-4">
-            <div className="mb-6">
-              <p className="text-sm text-muted-foreground mb-1">Detail</p>
-              <h2 className="text-3xl font-serif">{selectedTask.title}</h2>
+        {/* 家事詳細 - PC表示 */}
+        <div className="hidden md:block">
+          <ScrollArea className="h-[calc(100vh-100px)]">
+            <div className="py-6 pl-4">
+              <DetailContent task={selectedTask} />
             </div>
-
-            <div className="aspect-video bg-muted rounded-lg mb-6 flex items-center justify-center">
-              <Image
-                src="/placeholder.svg"
-                alt="Main detail image"
-                width={800}
-                height={450}
-                className="w-full h-full object-cover rounded-lg"
-              />
-            </div>
-
-            <div className="grid grid-cols-3 gap-4 mb-8">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="aspect-square bg-muted rounded-lg flex items-center justify-center">
-                  <Image
-                    src="/placeholder.svg"
-                    alt={`Thumbnail ${i}`}
-                    width={200}
-                    height={200}
-                    className="w-full h-full object-cover rounded-lg"
-                  />
-                </div>
-              ))}
-            </div>
-
-            <div>
-              <h3 className="font-serif text-xl mb-4">specifications</h3>
-              <p className="text-muted-foreground mb-2">{selectedTask.subtitle || "No specifications available"}</p>
-              {/* スクロールのテスト用に追加のコンテンツ */}
-              <div className="mt-8">
-                <h4 className="font-serif text-lg mb-2">Additional Information</h4>
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <p key={i} className="text-muted-foreground mb-4">
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                  </p>
-                ))}
-              </div>
-            </div>
-          </div>
-        </ScrollArea>
+          </ScrollArea>
+        </div>
       </div>
+
+      {/* 家事詳細 - スマートフォン表示 */}
+      {isDetailOpen && (
+        <div className="md:hidden fixed inset-0 bg-background z-50">
+          <div className="h-full flex flex-col">
+            <header className="border-b p-4 flex items-center justify-between">
+              <h2 className="text-xl font-serif">{selectedTask.title}</h2>
+              <button
+                onClick={() => setIsDetailOpen(false)}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <X className="h-6 w-6" />
+              </button>
+            </header>
+            <ScrollArea className="flex-1">
+              <div className="p-4">
+                <DetailContent task={selectedTask} />
+              </div>
+            </ScrollArea>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
