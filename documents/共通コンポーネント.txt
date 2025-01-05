@@ -1,0 +1,103 @@
+# 共通コンポーネント定義
+
+## 1. UIコンポーネント
+### 1.1 Layout
+- 用途: 全画面共通のレイアウト
+- Props:
+  - children: ReactNode
+  - showHeader?: boolean
+  - showFooter?: boolean
+- 構成要素:
+  - Header
+  - Footer
+  - Main content area
+
+### 1.2 Header
+- 用途: 全画面共通のヘッダー
+- Props:
+  - showMenu?: boolean（ログイン状態でtrue）
+- 構成要素:
+  - ハンバーガーメニュー（ログイン時）
+  - タイトル
+  - 日付表示
+
+### 1.3 Button
+- 用途: アクション用ボタン
+- Props:
+  - variant: 'primary' | 'secondary' | 'ghost'
+  - size: 'sm' | 'md' | 'lg'
+  - disabled?: boolean
+  - loading?: boolean
+  - onClick: () => void
+  - children: ReactNode
+
+### 1.4 ImageUploader
+- 用途: 画像アップロード用コンポーネント
+- Props:
+  - maxImages: number
+  - onUpload: (files: File[]) => void
+  - onDelete: (index: number) => void
+  - preview?: boolean
+- イベント:
+  - onUpload: 画像アップロード時
+  - onDelete: 画像削除時
+
+### 1.5 HouseworkCard
+- 用途: 家事一覧表示用カード
+- Props:
+  - title: string
+  - description?: string
+  - imageUrl?: string
+  - status: 'done' | 'incomplete'
+  - date: string
+  - onClick: () => void
+- イベント:
+  - onClick: カード選択時
+
+### 1.6 TimeInput
+- 用途: 時間入力用コンポーネント
+- Props:
+  - value: string
+  - onChange: (value: string) => void
+  - disabled?: boolean
+- バリデーション:
+  - 24時間形式
+  - 分は15分単位
+
+## 2. ユーティリティ
+### 2.1 useAuth
+- 機能: 認証状態の管理
+- 提供機能:
+  - isAuthenticated: boolean
+  - user: User | null
+  - login: (email, password) => Promise
+  - logout: () => Promise
+  - signup: (email, password, name) => Promise
+
+### 2.2 useHousework
+- 機能: 家事データの取得・更新
+- 提供機能:
+  - houseworks: Housework[]
+  - isLoading: boolean
+  - error: Error | null
+  - createHousework: (data) => Promise
+  - updateHousework: (id, data) => Promise
+  - deleteHousework: (id) => Promise
+
+### 2.3 formatDate
+- 機能: 日付フォーマット
+- 引数: Date | string
+- 戻り値: string
+- フォーマット:
+  - 日付表示: YYYY/MM/DD
+  - 時刻表示: HH:mm
+
+### 2.4 imageCompression
+- 機能: 画像圧縮
+- 引数:
+  - file: File
+  - maxSize: number
+- 戻り値: Promise<File>
+- 圧縮設定:
+  - 最大サイズ: 1MB
+  - 品質: 0.8 

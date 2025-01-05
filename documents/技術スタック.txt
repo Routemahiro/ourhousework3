@@ -1,0 +1,109 @@
+# 技術スタック定義
+
+## Frontend
+- フレームワーク:
+  - Next.js 14（App Router）
+  - TypeScript 5.x
+  
+- 状態管理:
+  - Zustand（シンプルな状態管理）
+  - React Query v5（サーバーステート管理）
+
+- UIライブラリ:
+  - Tailwind CSS（スタイリング）
+  - Radix UI（アクセシブルなコンポーネント）
+  - Lucide Icons（アイコン）
+  - Framer Motion（アニメーション）
+
+- ビルドツール:
+  - Turbopack（Next.js 14標準）
+  - PostCSS（CSSプロセッサ）
+
+- テスト:
+  - Vitest（ユニットテスト）
+  - Playwright（E2Eテスト）
+  - Testing Library（コンポーネントテスト）
+
+## Backend
+- 言語:
+  - TypeScript（フロントエンドと共通）
+
+- フレームワーク:
+  - Next.js API Routes（BFFレイヤー）
+  - Prisma（ORM）
+
+- データベース:
+  - PostgreSQL（メインDB）
+  - Redis（キャッシュ、セッション）
+
+- 認証:
+  - NextAuth.js（認証基盤）
+  - JWT（トークン管理）
+
+## インフラ（AWS）
+- ホスティング:
+  - フロントエンド：Vercel
+    → Next.jsの最適化、エッジ機能の活用
+  - データベース：AWS RDS（PostgreSQL）
+    → マネージドサービスで運用負荷軽減
+  
+- ストレージ:
+  - AWS S3（画像ストレージ）
+  - CloudFront（CDN）
+
+- キャッシュ:
+  - Vercel Edge Cache
+  - Redis Cloud（セッション管理）
+
+- 監視:
+  - Vercel Analytics
+  - Sentry（エラー監視）
+  - DataDog（パフォーマンス監視）
+
+## 開発環境
+- バージョン管理:
+  - Git
+  - GitHub
+
+- CI/CD:
+  - GitHub Actions
+  - Vercel自動デプロイ
+
+- コード品質:
+  - ESLint
+  - Prettier
+  - husky（Gitフック）
+  - lint-staged
+
+- 開発ツール:
+  - VSCode
+  - Docker（ローカル開発環境）
+  - pnpm（パッケージマネージャー）
+
+## セキュリティ
+- HTTPS強制
+- CSP（Content Security Policy）
+- CORS設定
+- Rate Limiting
+- WAF（Vercel Enterprise）
+
+## パフォーマンス最適化
+- 画像最適化:
+  - Next/Image
+  - WebP形式
+  - 自動サイズ最適化
+
+- バンドル最適化:
+  - コード分割
+  - 遅延ロード
+  - Tree Shaking
+
+## モニタリング
+- アプリケーションログ:
+  - Vercel Logs
+  - DataDog Logs
+
+- パフォーマンスモニタリング:
+  - Vercel Analytics
+  - Core Web Vitals
+  - RUM（Real User Monitoring） 

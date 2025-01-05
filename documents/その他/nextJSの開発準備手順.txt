@@ -1,0 +1,51 @@
+1.npx create-next-app@latest . --typescript --tailwind --eslint --eslint-config-next
+2.npm install @prisma/client framer-motion @tanstack/react-query cloudinary @supabase/supabase-js --legacy-peer-deps
+3.npm install -D prisma @types/node --legacy-peer-deps
+4.npx prisma init
+
+5.schema.prismaに以下を記載
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Image {
+  id        String   @id @default(cuid())
+  url       String
+  alt       String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+6.supabaseにログインし、データベースを作成
+7.Home画面の緑ボタンの「Connect」をクリックし、「ORMs」を選択
+8.envファイルとschema.prismaにコピペするコードが表示されるので、それをコピペ
+
+9.npx prisma generate   # Prismaクライアントの生成
+10.npx prisma db push    # データベースにスキーマを反映
+
+11.必要に応じ、以下のコマンドを実行し、ファイルインデックスをまとめる
+Get-ChildItem -Recurse -Exclude node_modules,.next,prisma | Where-Object { $_.FullName -notmatch 'node_modules|\.next|prisma' } | ForEach-Object {
+    $indent = "  " * ($_.FullName.Split("\").Count - 2)
+    $indent + $_.Name
+}
+
+
+
+※以下メモ
+# 1. Next.jsプロジェクトの作成（バージョン指定）
+npx create-next-app@14.1.0 . --typescript --tailwind --eslint --eslint-config-next
+
+# 2. 必要なパッケージのインストール（バージョン指定）
+npm install @prisma/client@5.22.0 framer-motion@11.11.17 @tanstack/react-query@5.60.2 cloudinary@2.5.1 @supabase/supabase-js@2.46.1 --legacy-peer-deps
+
+# 3. 開発用パッケージのインストール
+npm install -D prisma@5.22.0 @types/node@20.17.6 ts-node --legacy-peer-deps
+
+# 4. Prismaの初期化
+npx prisma init

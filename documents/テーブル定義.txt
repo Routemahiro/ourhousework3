@@ -1,0 +1,107 @@
+# テーブル定義書
+
+## テーブル名: users
+### 概要
+ユーザー情報を管理するテーブル
+
+### カラム定義
+| カラム名          | データ型      | NULL | 主キー | 外部キー | 初期値   | 説明                           |
+|-------------------|---------------|------|---------|-----------|----------|--------------------------------|
+| id                | uuid          | NO   | YES     | -         | -        | ユーザーID                     |
+| email             | varchar(255)  | NO   | -       | -         | -        | メールアドレス                 |
+| password_hash     | varchar(255)  | NO   | -       | -         | -        | ハッシュ化されたパスワード     |
+| name              | varchar(50)   | YES  | -       | -         | -        | ユーザー名                     |
+| google_id         | varchar(255)  | YES  | -       | -         | -        | Google認証用ID                 |
+| created_at        | timestamp     | NO   | -       | -         | NOW()    | 作成日時                       |
+| updated_at        | timestamp     | NO   | -       | -         | NOW()    | 更新日時                       |
+
+### インデックス
+- users_email_idx:
+  - カラム: email
+  - 種類: UNIQUE
+
+## テーブル名: houseworks
+### 概要
+家事の基本情報を管理するテーブル
+
+### カラム定義
+| カラム名          | データ型      | NULL | 主キー | 外部キー | 初期値   | 説明                           |
+|-------------------|---------------|------|---------|-----------|----------|--------------------------------|
+| id                | uuid          | NO   | YES     | -         | -        | 家事ID                         |
+| user_id           | uuid          | NO   | -       | users.id  | -        | 作成者のユーザーID             |
+| title             | varchar(100)  | NO   | -       | -         | -        | 家事のタイトル                 |
+| description       | text          | YES  | -       | -         | -        | 説明文                         |
+| steps             | text          | YES  | -       | -         | -        | 手順（テキスト形式）           |
+| estimated_time    | interval      | NO   | -       | -         | -        | 予想実行時間                   |
+| created_at        | timestamp     | NO   | -       | -         | NOW()    | 作成日時                       |
+| updated_at        | timestamp     | NO   | -       | -         | NOW()    | 更新日時                       |
+| type              | varchar(20)   | NO   | -       | -         | 'once'   | 家事タイプ(once/recurring)     |
+
+### インデックス
+- houseworks_user_id_idx:
+  - カラム: user_id
+  - 種類: INDEX
+
+## テーブル名: housework_schedules
+### 概要
+定期的な家事のスケジュールを管理するテーブル
+
+### カラム定義
+| カラム名          | データ型      | NULL | 主キー | 外部キー | 初期値   | 説明                           |
+|-------------------|---------------|------|---------|-----------|----------|--------------------------------|
+| id                | uuid          | NO   | YES     | -         | -        | スケジュールID                 |
+| housework_id      | uuid          | NO   | -       | houseworks.id | -    | 家事ID                         |
+| repeat_type       | varchar(20)   | NO   | -       | -         | -        | 繰り返し種別(daily/weekly/monthly/yearly) |
+| repeat_value      | jsonb         | NO   | -       | -         | -        | 繰り返し設定値                 |
+| start_time        | time          | NO   | -       | -         | -        | 開始時刻                       |
+| created_at        | timestamp     | NO   | -       | -         | NOW()    | 作成日時                       |
+| updated_at        | timestamp     | NO   | -       | -         | NOW()    | 更新日時                       |
+| last_executed_at  | timestamp     | YES  | -       | -         | -        | 最後に実行された日時           |
+| next_execution_at | timestamp     | NO   | -       | -         | -        | 次回実行予定日時               |
+
+### インデックス
+- schedules_housework_id_idx:
+  - カラム: housework_id
+  - 種類: INDEX
+
+## テーブル名: housework_images
+### 概要
+家事に関連する画像を管理するテーブル
+
+### カラム定義
+| カラム名          | データ型      | NULL | 主キー | 外部キー | 初期値   | 説明                           |
+|-------------------|---------------|------|---------|-----------|----------|--------------------------------|
+| id                | uuid          | NO   | YES     | -         | -        | 画像ID                         |
+| housework_id      | uuid          | NO   | -       | houseworks.id | -    | 家事ID                         |
+| image_url         | varchar(255)  | NO   | -       | -         | -        | 画像のURL                      |
+| image_type        | varchar(10)   | NO   | -       | -         | -        | 画像タイプ(main/sub)          |
+| order_num         | smallint      | NO   | -       | -         | 0        | 表示順序                       |
+| description       | varchar(255)  | YES  | -       | -         | -        | 画像の説明                     |
+| created_at        | timestamp     | NO   | -       | -         | NOW()    | アップロード日時               |
+
+### インデックス
+- images_housework_id_idx:
+  - カラム: housework_id
+  - 種類: INDEX
+
+## テーブル名: housework_histories
+### 概要
+家事の実行履歴を管理するテーブル
+
+### カラム定義
+| カラム名          | データ型      | NULL | 主キー | 外部キー | 初期値   | 説明                           |
+|-------------------|---------------|------|---------|-----------|----------|--------------------------------|
+| id                | uuid          | NO   | YES     | -         | -        | 履歴ID                         |
+| housework_id      | uuid          | NO   | -       | houseworks.id | -    | 家事ID                         |
+| user_id           | uuid          | NO   | -       | users.id  | -        | 実行者のユーザーID             |
+| completed_at      | timestamp     | NO   | -       | -         | -        | 完了日時                       |
+| status            | varchar(20)   | NO   | -       | -         | 'done'   | 状態(done/incomplete)          |
+| created_at        | timestamp     | NO   | -       | -         | NOW()    | 記録日時                       |
+
+### インデックス
+- histories_housework_id_idx:
+  - カラム: housework_id
+  - 種類: INDEX
+- histories_user_id_idx:
+  - カラム: user_id
+  - 種類: INDEX 

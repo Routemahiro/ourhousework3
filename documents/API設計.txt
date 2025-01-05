@@ -1,0 +1,214 @@
+# API設計書
+
+## エンドポイント一覧
+
+### 1. 認証系API
+#### 1.1 サインアップ
+- Path: `/api/auth/signup`
+- Method: POST
+- 認証: 不要
+
+##### リクエスト
+    {
+      "email": "string",
+      "password": "string",
+      "name": "string"
+    }
+
+##### レスポンス
+    {
+      "status": "success",
+      "data": {
+        "user": {
+          "id": "uuid",
+          "email": "string",
+          "name": "string"
+        },
+        "token": "string"
+      }
+    }
+
+#### 1.2 サインイン
+- Path: `/api/auth/signin`
+- Method: POST
+- 認証: 不要
+
+##### リクエスト
+    {
+      "email": "string",
+      "password": "string"
+    }
+
+##### レスポンス
+    {
+      "status": "success",
+      "data": {
+        "user": {
+          "id": "uuid",
+          "email": "string",
+          "name": "string"
+        },
+        "token": "string"
+      }
+    }
+
+### 2. 家事管理API
+#### 2.1 家事一覧取得
+- Path: `/api/houseworks`
+- Method: GET
+- 認証: 必要
+- クエリパラメータ:
+  - type?: "once" | "recurring"
+  - status?: "done" | "incomplete"
+  - date?: "YYYY-MM-DD"
+
+##### レスポンス
+    {
+      "status": "success",
+      "data": {
+        "houseworks": [
+          {
+            "id": "uuid",
+            "title": "string",
+            "description": "string",
+            "steps": "string",
+            "estimatedTime": "string",
+            "type": "once|recurring",
+            "images": [
+              {
+                "id": "uuid",
+                "url": "string",
+                "type": "main|sub"
+              }
+            ],
+            "schedule": {
+              "repeatType": "daily|weekly|monthly|yearly",
+              "repeatValue": "object",
+              "startTime": "string",
+              "nextExecutionAt": "string"
+            }
+          }
+        ]
+      }
+    }
+
+#### 2.2 家事登録
+- Path: `/api/houseworks`
+- Method: POST
+- 認証: 必要
+
+##### リクエスト
+    {
+      "title": "string",
+      "description": "string",
+      "steps": "string",
+      "estimatedTime": "string",
+      "type": "once|recurring",
+      "images": [
+        {
+          "file": "binary",
+          "type": "main|sub"
+        }
+      ],
+      "schedule": {
+        "repeatType": "daily|weekly|monthly|yearly",
+        "repeatValue": "object",
+        "startTime": "string"
+      }
+    }
+
+##### レスポンス
+    {
+      "status": "success",
+      "data": {
+        "housework": {
+          "id": "uuid",
+          "title": "string",
+          "type": "once|recurring"
+        }
+      }
+    }
+
+#### 2.3 家事更新
+- Path: `/api/houseworks/:id`
+- Method: PUT
+- 認証: 必要
+
+##### リクエスト
+    {
+      "title": "string",
+      "description": "string",
+      "steps": "string",
+      "estimatedTime": "string",
+      "schedule": {
+        "repeatType": "daily|weekly|monthly|yearly",
+        "repeatValue": "object",
+        "startTime": "string"
+      }
+    }
+
+#### 2.4 家事完了状態更新
+- Path: `/api/houseworks/:id/status`
+- Method: PUT
+- 認証: 必要
+
+##### リクエスト
+    {
+      "status": "done|incomplete",
+      "completedAt": "string"
+    }
+
+### 3. 画像管理API
+#### 3.1 画像アップロード
+- Path: `/api/images/upload`
+- Method: POST
+- 認証: 必要
+- Content-Type: multipart/form-data
+- 制限:
+  - 最大ファイルサイズ: 10MB
+  - 許可形式: jpg, png, webp
+  - 変換設定:
+    - メイン画像: 1920x1080px, 80%品質
+    - サムネイル: 400x300px, 70%品質
+
+##### リクエスト
+- Form Data:
+  - file: File
+  - type: "main" | "sub"
+  - houseworkId: string
+
+##### レスポンス
+    {
+      "status": "success",
+      "data": {
+        "imageUrl": "string",
+        "thumbnailUrl": "string",
+        "originalSize": "number",
+        "convertedSize": "number"
+      }
+    }
+
+### 4. エラーレスポンス
+すべてのAPIで共通のエラーレスポンス形式：
+
+    {
+      "status": "error",
+      "error": {
+        "code": "string",
+        "message": "string",
+        "details": "object|null"
+      }
+    }
+
+## 認証方式
+- JWTトークンを使用
+- Authorization: Bearer {token}
+- トークン有効期限: 24時間
+
+## レート制限
+- 未認証: 60リクエスト/分
+- 認証済み: 300リクエスト/分
+
+## バージョニング
+- URLパスにバージョンを含める（例: /api/v1/...）
+- 現在のバージョン: v1

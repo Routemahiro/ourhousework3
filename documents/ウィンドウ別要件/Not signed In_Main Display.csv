@@ -1,0 +1,154 @@
+ウィンドウ名,Main Display
+状態,Not signed In
+メイン機能,仮データによる操作のお試し
+その他機能,特になし
+操作要素（ボタン等）,"-家事リスト（画面左側）
+Done!（未完了の家事に対して）
+Incomplete（完了済みの家事に対して）
+家事リストのタップ
+
+-家事詳細
+操作要素は無し。表示内容量によってスクロールが出来るだけ。"
+遷移先,"サインイン画面
+サインアップ画面"
+補足,"-画面上部のヘッダー帯
+左上にハンバーガーメニュー
+真ん中にToday’s HouseWorkと表記
+
+-画面左側
+家事リスト
+その日の家事がリストで並んでいる
+タップすると、それの詳細が表示
+
+また家事リストの左側には時計の針のようなものがあり、現在の時刻での家事リストのうち、最新のものが指されるようになっている
+家事リストが表示されていない場合は、リストの最上部をデフォルトとして表示
+
+-画面右側
+家事の詳細を表示
+家事リストの家事をタップすることによって、その家事の詳細が表示されるほか、
+未操作のときは、家事リストにて針が指されているものが表示されるようにする
+
+主な表示内容は以下
+・メイン写真
+・サブ写真
+※これらの写真はタップで拡大可能
+・マニュアル
+・その他詳細
+・履歴（定期の場合）
+
+最も表示されている、基本的には常時表示であることを期待しているので、どんな家にでも合うようなシンプルな感じのデザインにする（デフォルトをダークモードにすることを検討）"
+
+サンプルコード
+import { Menu } from 'lucide-react'
+import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
+import Image from "next/image"
+import { ScrollArea } from "@/components/ui/scroll-area"
+
+export default function Component() {
+  const tasks = [
+    { id: 1, title: "Title Left alignment", date: "mm:dd", status: "done", selected: false },
+    { id: 2, title: "Title Left alignment", subtitle: "this time is start timing", date: "mm:dd", status: "done", selected: false },
+    { id: 3, title: "Done contents", subtitle: "back ground is gray out", date: "mm:dd", status: "incomplete", selected: false },
+    { id: 4, title: "Selected List", subtitle: "Display details on the right side", date: "mm:dd", status: "done", selected: true },
+    { id: 5, title: "This side content", subtitle: "is slide with user use", date: "mm:dd", status: "incomplete", selected: false },
+    { id: 6, title: "Additional Task 1", date: "mm:dd", status: "done", selected: false },
+    { id: 7, title: "Additional Task 2", subtitle: "With some details", date: "mm:dd", status: "incomplete", selected: false },
+    { id: 8, title: "Additional Task 3", date: "mm:dd", status: "done", selected: false },
+    { id: 9, title: "Additional Task 4", subtitle: "More details here", date: "mm:dd", status: "incomplete", selected: false },
+    { id: 10, title: "Additional Task 5", date: "mm:dd", status: "done", selected: false },
+  ]
+
+  return (
+    <div className="min-h-screen bg-background flex flex-col">
+      <header className="border-b">
+        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+          <Button variant="ghost" size="icon" className="text-foreground">
+            <Menu className="h-6 w-6" />
+            <span className="sr-only">menu</span>
+          </Button>
+          <div className="text-center">
+            <div className="text-sm text-muted-foreground">yyyy/mm/dd</div>
+            <h1 className="text-2xl font-serif">Today&apos;s housework</h1>
+          </div>
+          <div className="w-10" /> {/* Spacer for centering */}
+        </div>
+      </header>
+
+      <div className="container mx-auto px-4 flex-1 grid md:grid-cols-[1fr,1px,1fr] gap-6 overflow-hidden">
+        <ScrollArea className="h-[calc(100vh-100px)] py-6">
+          {tasks.map((task) => (
+            <div
+              key={task.id}
+              className={cn(
+                "mb-4 flex gap-4 p-4 rounded-lg",
+                task.selected && "bg-blue-100 dark:bg-blue-950"
+              )}
+            >
+              <div className="w-24 h-24 bg-muted rounded-lg flex items-center justify-center">
+                <Image
+                  src="/placeholder.svg"
+                  alt=""
+                  width={96}
+                  height={96}
+                  className="w-full h-full object-cover rounded-lg"
+                />
+              </div>
+              <div className="flex-1">
+                <h3 className="font-serif text-lg">{task.title}</h3>
+                {task.subtitle && <p className="text-muted-foreground mt-1">{task.subtitle}</p>}
+                <p className="text-sm text-muted-foreground mt-2">{task.date}</p>
+              </div>
+              <Button
+                variant={task.status === "done" ? "default" : "secondary"}
+                className="h-8 self-start"
+              >
+                {task.status === "done" ? "Done!" : "incomplete"}
+              </Button>
+            </div>
+          ))}
+        </ScrollArea>
+
+        <div className="hidden md:block w-px bg-border" />
+
+        <div className="py-6">
+          <div className="mb-6">
+            <p className="text-sm text-muted-foreground mb-1">Detail</p>
+            <h2 className="text-3xl font-serif">Work Title</h2>
+          </div>
+
+          <div className="aspect-video bg-muted rounded-lg mb-6 flex items-center justify-center">
+            <Image
+              src="/placeholder.svg"
+              alt="Main detail image"
+              width={800}
+              height={450}
+              className="w-full h-full object-cover rounded-lg"
+            />
+          </div>
+
+          <div className="grid grid-cols-3 gap-4 mb-8">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="aspect-square bg-muted rounded-lg flex items-center justify-center">
+                <Image
+                  src="/placeholder.svg"
+                  alt={`Thumbnail ${i}`}
+                  width={200}
+                  height={200}
+                  className="w-full h-full object-cover rounded-lg"
+                />
+              </div>
+            ))}
+          </div>
+
+          <div>
+            <h3 className="font-serif text-xl mb-4">specifications</h3>
+            <p className="text-muted-foreground mb-2">specificationsspecificationsspecifications</p>
+            <p className="text-muted-foreground mb-2">specificationsspecifications</p>
+            <p className="text-muted-foreground">specificationsspecificationsspecifications</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
