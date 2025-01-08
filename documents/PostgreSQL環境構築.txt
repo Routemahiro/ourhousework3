@@ -1,0 +1,84 @@
+# PostgreSQL環境構築手順
+
+## 1. PostgreSQLのインストール（Windows）
+1. PostgreSQLのダウンロード
+   - https://www.postgresql.org/download/windows/ にアクセス
+   - 最新の安定版（現在は16.x）をダウンロード
+
+2. インストール手順
+   - ダウンロードしたインストーラーを実行
+   - インストールディレクトリの選択（デフォルトでOK）
+   - 以下のコンポーネントを選択
+     - PostgreSQL Server
+     - pgAdmin 4（管理ツール）
+     - Command Line Tools
+   - データディレクトリの選択（デフォルトでOK）
+   - パスワードの設定
+     - postgresユーザー（管理者）のパスワードを設定
+     - ※このパスワードは忘れないように保管すること
+   - ポート番号の設定（デフォルト: 5432）
+   - ロケールの設定（日本語環境の場合は「Japanese, Japan」）
+
+## 2. 開発用データベースの作成
+1. pgAdmin 4の起動
+   - Windowsメニューから「pgAdmin 4」を起動
+   - 初回起動時にマスターパスワードの設定が必要
+
+2. データベース作成
+   - 左側のブラウザペインで「Servers」→「PostgreSQL」を展開
+   - 「Databases」を右クリック→「Create」→「Database」
+   - 以下の情報を入力：
+     - Database: ourhousework_dev
+     - Owner: postgres（デフォルト）
+
+## 3. データベースユーザーの作成
+1. pgAdmin 4で以下の手順を実行
+   - 「Login/Group Roles」を右クリック→「Create」→「Login/Group Role」
+   - 以下の情報を入力：
+     - Name: ourhousework_user
+     - Password: 任意のパスワード（安全な文字列を使用）（一時的なメモ：our_password）
+   - Privileges タブで以下を設定：
+     - Can login?: Yes
+     - Create database?: No
+     - Create role?: No
+     - Superuser?: No
+
+2. 権限の付与
+   - 作成したデータベースを右クリック→「Properties」
+   - 「Security」タブで以下を設定：
+     - ourhousework_userに対して
+       - CONNECT: Yes
+       - TEMPORARY: Yes
+       - ALL: Yes
+
+## 4. 接続情報の設定
+1. .envファイルの作成
+   ```
+   DATABASE_URL="postgresql://ourhousework_user:our_password@localhost:5432/ourhousework_dev"
+   ```
+
+## 5. 動作確認
+1. psqlコマンドでの接続確認
+   ```bash
+   psql -U ourhousework_user -d ourhousework_dev
+   ```
+
+2. 接続成功時の確認コマンド
+   ```sql
+   \l    -- データベース一覧
+   \du   -- ユーザー一覧
+   \q    -- 終了
+   ```
+
+## トラブルシューティング
+1. サービスの確認
+   - Windowsサービスで「postgresql-x64-16」が実行中か確認
+   - 実行されていない場合は開始する
+
+2. ファイアウォール設定
+   - ポート5432が開放されているか確認
+   - 必要に応じてファイアウォールの例外を追加
+
+3. 接続エラー時
+   - pg_hba.confファイルの設定確認
+   - ログファイルの確認（デフォルト：data/log/） 

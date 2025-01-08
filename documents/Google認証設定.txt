@@ -1,0 +1,88 @@
+# Google OAuth認証設定手順（最初のうちは、メールアドレス認証のみとする。本番環境実装後、Google認証を追加）
+
+
+## 1. Google Cloud Consoleでの設定
+1. Google Cloud Consoleにアクセス
+   - https://console.cloud.google.com/
+   - Googleアカウントでログイン
+
+2. プロジェクトの作成
+   - 「プロジェクトを作成」をクリック
+   - プロジェクト名: OurHousework（任意）
+   - 組織: なし
+   - 作成をクリック
+
+3. OAuth同意画面の設定
+   - 左メニュー→「APIとサービス」→「OAuth同意画面」
+   - User Typeで「外部」を選択
+   - アプリ情報の入力
+     - アプリ名: OurHousework
+     - ユーザーサポートメール: 管理者のメールアドレス
+     - デベロッパーの連絡先情報: 管理者のメールアドレス
+   - 承認済みドメインの追加
+     - 開発環境: localhost
+     - 本番環境: あなたのドメイン
+
+4. 認証情報の作成
+   - 左メニュー→「APIとサービス」→「認証情報」
+   - 「認証情報を作成」→「OAuthクライアントID」
+   - アプリケーションの種類: 「ウェブアプリケーション」
+   - 名前: OurHousework Web Client
+   - 承認済みのリダイレクトURI:
+     - 開発環境: http://localhost:3000/api/auth/callback/google
+     - 本番環境: https://あなたのドメイン/api/auth/callback/google
+
+## 2. 認証情報の取得
+1. クライアントIDとシークレットの取得
+   - 作成したOAuthクライアントIDの詳細画面で確認
+   - クライアントID
+   - クライアントシークレット
+   ※これらの情報は機密情報として扱うこと
+
+## 3. プロジェクトでの設定
+1. 環境変数の設定
+   ```
+   # .env
+   GOOGLE_CLIENT_ID="取得したクライアントID"
+   GOOGLE_CLIENT_SECRET="取得したクライアントシークレット"
+   ```
+
+2. NextAuth.jsの設定
+   ```typescript
+   // app/api/auth/[...nextauth]/route.ts
+   import GoogleProvider from "next-auth/providers/google"
+
+   providers: [
+     GoogleProvider({
+       clientId: process.env.GOOGLE_CLIENT_ID!,
+       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+     }),
+   ]
+   ```
+
+## 4. セキュリティ注意事項
+1. 認証情報の管理
+   - クライアントIDとシークレットは.envファイルで管理
+   - .gitignoreに.envを追加
+   - 本番環境では環境変数として設定
+
+2. リダイレクトURIの管理
+   - 開発環境と本番環境で適切に設定
+   - 不要なリダイレクトURIは削除
+
+3. スコープの制限
+   - 必要最小限のスコープのみを要求
+   - デフォルト: email, profile
+
+## 5. トラブルシューティング
+1. リダイレクトエラー
+   - リダイレクトURIが正確に設定されているか確認
+   - プロトコル（http/https）とポート番号を確認
+
+2. 認証エラー
+   - 環境変数が正しく設定されているか確認
+   - クライアントIDとシークレットが正しいか確認
+
+3. スコープエラー
+   - 必要なスコープが承認されているか確認
+   - OAuth同意画面での設定を確認 
